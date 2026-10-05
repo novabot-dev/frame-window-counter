@@ -1,20 +1,31 @@
 name: Build Geode Mod
 
 on:
-  push:
-    branches: [ master ]
   workflow_dispatch:
+  push:
+    branches:
+      - "**"
 
 jobs:
   build:
     name: Windows (Win64)
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
+
       - name: Build the mod
-        uses: geode-sdk/build-actions@v1
+        id: build
+        uses: geode-sdk/build-geode-mod@main
         with:
+          sdk: latest
+          cli: latest
           target: Win64
+          build-config: RelWithDebInfo
+          path: ./
+
+      - name: Upload the .geode artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frame-window-counter-geode
+          path: ${{ steps.build.outputs.build-output }}
+          if-no-files-found: error
